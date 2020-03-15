@@ -11,6 +11,7 @@ SEED = 42
 DATA_FOLDER = 'data'
 STATS_FOLDER = 'stats'
 PLOTS_FOLDER = 'plots'
+KMEANS_PLOTS_FOLDER = f'{PLOTS_FOLDER}/kmeans'
 census_x_train, census_y_train, census_x_test, census_y_test = None, None, None, None
 fashion_x_train, fashion_y_train, fashion_x_test, fashion_y_test = None, None, None, None
 
@@ -75,21 +76,21 @@ def plot_cluster_centers_fashion(estimator):
     for axi, center in zip(ax.flat, centers):
         axi.set(xticks=[], yticks=[])
         axi.imshow(center, interpolation='nearest', cmap='binary')
-    plt.savefig(f'{PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    plt.savefig(f'{KMEANS_PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_cluster_distances_fashion(estimator):
     visualizer = InterclusterDistance(estimator)
     visualizer.fit(fashion_x_train)
-    visualizer.show(f'{PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
+    visualizer.show(f'{KMEANS_PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_cluster_silhouette_fashion(estimator):
     visualizer = SilhouetteVisualizer(estimator, colors='yellowbrick')
     visualizer.fit(fashion_x_train)
-    visualizer.show(f'{PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
+    visualizer.show(f'{KMEANS_PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
     plt.clf()
 
 
@@ -97,7 +98,7 @@ def plot_elbow_distortion_fashion(k_values):
     estimator = KMeans(random_state=SEED)
     visualizer = KElbowVisualizer(estimator, k=k_values, metric='distortion')
     visualizer.fit(fashion_x_train)  # Fit the data to the visualizer
-    visualizer.show(f'{PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_elbow_distortion.png')
+    visualizer.show(f'{KMEANS_PLOTS_FOLDER}/fashion_{estimator.__class__.__name__}_elbow_distortion.png')
     plt.clf()
 
 
