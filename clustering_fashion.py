@@ -99,6 +99,7 @@ def kmeans_kselection():
         plot_cluster_distances(kmeans)
         plot_cluster_silhouette(kmeans)
 
+    print('running elbow method')
     plot_elbow_distortion(k_values)
 
     stats_df = pd.DataFrame(stats).set_index('k')

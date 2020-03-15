@@ -57,6 +57,14 @@ def plot_elbow_distortion(k_values):
     plt.clf()
 
 
+def plot_elbow_silhouette(k_values):
+    estimator = KMeans(random_state=SEED)
+    visualizer = KElbowVisualizer(estimator, k=k_values, metric='silhouette')
+    visualizer.fit(census_x_train)  # Fit the data to the visualizer
+    visualizer.show(f'{KMEANS_PLOTS_FOLDER}/census_{estimator.__class__.__name__}_elbow_silhouette.png')
+    plt.clf()
+
+
 # KMEANS
 
 def bench_k_means(estimator, data, labels):
@@ -77,7 +85,7 @@ def bench_k_means(estimator, data, labels):
 
 def kmeans_kselection():
     stats = []
-    k_values = [2, 3, 4, 5]
+    k_values = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     for k in k_values:
         print(f'analyzing census with KMeans (k={k})')
@@ -87,7 +95,11 @@ def kmeans_kselection():
         plot_cluster_distances(kmeans)
         plot_cluster_silhouette(kmeans)
 
+    print('running elbow method on distortion')
     plot_elbow_distortion(k_values)
+
+    print('running elbow method on silhouette')
+    plot_elbow_silhouette(k_values)
 
     stats_df = pd.DataFrame(stats).set_index('k')
     stats_df.to_csv(f'{STATS_FOLDER}/kmeans_census_stats.csv')
@@ -106,9 +118,16 @@ def kmeans_evaluation():
     plt.clf()
 
 
+# TODO:
+# - change distance metric to gower
+# - study relationship between features and cluster
+#
+
+
 # MAIN
 
 if __name__ == '__main__':
     load_data()
     kmeans_kselection()
+    kmeans_evaluation()
     print('exp run.')
