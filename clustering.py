@@ -122,8 +122,21 @@ def kmeans_kselection_fashion():
     print('kmeans_kselection_fashion run.')
 
 
+def kmeans_evaluation_fashion():
+    stats = pd.read_csv(f'{STATS_FOLDER}/kmeans_fashion_stats.csv', index_col='k')
+    stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
+    stats.plot(marker='o')
+    plt.title(f'Evaluation of KMeans clusters (confirming k=5)')
+    plt.xlabel('Number of clusters (k=5 was chosen)')
+    plt.ylabel('Score Values')
+    plt.legend()
+    plt.savefig(f'{KMEANS_PLOTS_FOLDER}/fashion_KMeans_evaluation.png')
+    plt.clf()
+
+
 if __name__ == '__main__':
     load_data_census()
     load_data_fashion()
-    kmeans_kselection_fashion()
+    #kmeans_kselection_fashion()
+    kmeans_evaluation_fashion()
     print('exp run.')
