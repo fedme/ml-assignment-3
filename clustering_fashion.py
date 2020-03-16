@@ -1,65 +1,91 @@
 from time import time
-
 import pandas as pd
 from sklearn import metrics
 from sklearn.base import ClusterMixin
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from sklearn.metrics import calinski_harabasz_score
 from sklearn.mixture import GaussianMixture
 from yellowbrick.cluster import KElbowVisualizer, InterclusterDistance, SilhouetteVisualizer
+import seaborn as sns
 
 SEED = 42
 DATA_FOLDER = 'data'
 STATS_FOLDER = 'stats'
 PLOTS_FOLDER = 'plots'
-KMEANS_PLOTS_FOLDER = f'{PLOTS_FOLDER}/kmeans/fashion'
-EM_PLOTS_FOLDER = f'{PLOTS_FOLDER}/em/fashion'
-fashion_x_train, fashion_y_train, fashion_x_test, fashion_y_test = None, None, None, None
 
 
 # DATA LOADING
+DATA = {}
 
-def load_data():
-    global fashion_x_train, fashion_y_train, fashion_x_test, fashion_y_test
 
-    # Load csv files
-    fashion_x_train = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_train.csv')
-    fashion_y_train = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_train.csv').iloc[:, 0].to_numpy()
-    fashion_x_test = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_test.csv')
-    fashion_y_test = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_test.csv').iloc[:, 0].to_numpy()
+def load_data(dataset, version):
+    if dataset == 'fashion':
+        load_data_fashion(version)
+    if dataset == 'wine':
+        load_data_wine(version)
+
+
+def load_data_fashion(version):
+    if version == 'base':
+        DATA['fashion']['base']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_train.csv')
+        DATA['fashion']['base']['y_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_train.csv').iloc[:, 0].to_numpy()
+        DATA['fashion']['base']['x_test'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_test.csv')
+        DATA['fashion']['base']['y_test'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_test.csv').iloc[:, 0].to_numpy()
+
+
+def load_data_wine(version):
+    if version == 'base':
+        DATA['wine']['base']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_x_train.csv')
+        DATA['wine']['base']['y_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_train.csv').iloc[:, 0].to_numpy()
+        DATA['wine']['base']['x_test'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_x_test.csv')
+        DATA['wine']['base']['y_test'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_test.csv').iloc[:, 0].to_numpy()
 
 
 # COMMON
 
-def plot_cluster_centers(estimator):
+def plot_cluster_centers(estimator, dataset, version):
+    if dataset == 'fashion':
+        plot_cluster_centers_fashion(estimator, dataset, version)
+    if dataset == 'wine':
+        plot_cluster_centers_wine(estimator, dataset, version)
+
+
+def plot_cluster_centers_fashion(estimator, dataset, version):
     fig, ax = plt.subplots(1, estimator.n_clusters)
     centers = estimator.cluster_centers_.reshape(estimator.n_clusters, 28, 28)
     for axi, center in zip(ax.flat, centers):
         axi.set(xticks=[], yticks=[])
         axi.imshow(center, interpolation='nearest', cmap='binary')
-    plt.savefig(f'{PLOTS_FOLDER}/fashion/base/fashion_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
     plt.clf()
 
 
-def plot_cluster_distances(estimator):
+def plot_cluster_centers_wine(estimator, dataset, version):
+    df = pd.DataFrame(estimator.cluster_centers_, columns=DATA[dataset][version]['x_train'].columns)
+    ax = sns.heatmap(df, annot=True, cmap='Blues')
+    ax.figure.subplots_adjust(bottom=0.3)
+    ax.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    plt.clf()
+
+
+def plot_cluster_distances(estimator, dataset, version):
     visualizer = InterclusterDistance(estimator)
-    visualizer.fit(fashion_x_train)
-    visualizer.show(f'{PLOTS_FOLDER}/fashion/base/fashion_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
+    visualizer.fit(DATA[dataset][version]['x_train'])
+    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
     plt.clf()
 
 
-def plot_cluster_silhouette(estimator):
+def plot_cluster_silhouette(estimator, dataset, version):
     visualizer = SilhouetteVisualizer(estimator, colors='yellowbrick')
-    visualizer.fit(fashion_x_train)
-    visualizer.show(f'{PLOTS_FOLDER}/fashion/base/fashion_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
+    visualizer.fit(DATA[dataset][version]['x_train'])
+    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
     plt.clf()
 
 
-def plot_elbow(estimator, k_values, metric='distortion'):
+def plot_elbow(estimator, k_values, dataset, version, metric='distortion'):
     visualizer = KElbowVisualizer(estimator, k=k_values, metric=metric)
-    visualizer.fit(fashion_x_train)
-    visualizer.show(f'{PLOTS_FOLDER}/fashion/base/fashion_{estimator.__class__.__name__}_elbow_{metric}.png')
+    visualizer.fit(DATA[dataset][version]['x_train'])
+    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_elbow_{metric}.png')
     plt.clf()
 
 
@@ -81,37 +107,37 @@ def kmeans_fit(estimator, data, labels):
     }
 
 
-def kmeans_kselection():
+def kmeans_kselection(dataset, version):
     stats = []
     k_values = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     for k in k_values:
-        print(f'analyzing fashion with KMeans (k={k})')
+        print(f'Analyzing {dataset} ({version} version) with KMeans (k={k})')
         kmeans = KMeans(n_clusters=k, random_state=SEED)
-        bench = kmeans_fit(kmeans, fashion_x_train, fashion_y_train)
+        bench = kmeans_fit(kmeans, DATA[dataset][version]['x_train'], DATA[dataset][version]['y_train'])
         stats.append(bench)
-        plot_cluster_centers(kmeans)
-        plot_cluster_distances(kmeans)
-        plot_cluster_silhouette(kmeans)
+        plot_cluster_centers(kmeans, dataset, version)
+        plot_cluster_distances(kmeans, dataset, version)
+        plot_cluster_silhouette(kmeans, dataset, version)
 
     print('running elbow method')
     estimator = KMeans(random_state=SEED)
-    plot_elbow(estimator, k_values, metric='distortion')
+    plot_elbow(estimator, k_values, dataset, version, metric='distortion')
 
     stats_df = pd.DataFrame(stats).set_index('k')
-    stats_df.to_csv(f'{STATS_FOLDER}/fashion/base/kmeans_fashion_stats.csv')
-    print('kmeans_kselection_fashion run.')
+    stats_df.to_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_kmeans_stats.csv')
+    print(f'KMeans kselection on {dataset} ({version} version) run.')
 
 
-def kmeans_evaluation():
-    stats = pd.read_csv(f'{STATS_FOLDER}/fashion/base/kmeans_fashion_stats.csv', index_col='k')
+def kmeans_evaluation(dataset, version):
+    stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_kmeans_stats.csv', index_col='k')
     stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
     stats.plot(marker='o')
-    plt.title(f'Evaluation of KMeans clusters (confirming k=5)')
-    plt.xlabel('Number of clusters (k=5 was chosen)')
+    plt.title(f'Evaluation of KMeans clusters')
+    plt.xlabel('Number of clusters')
     plt.ylabel('Score Values')
     plt.legend()
-    plt.savefig(f'{PLOTS_FOLDER}/fashion/base/fashion_KMeans_evaluation.png')
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_KMeans_evaluation.png')
     plt.clf()
 
 
@@ -155,45 +181,50 @@ def em_fit(estimator, data, labels):
     }
 
 
-def em_kselection():
+def em_kselection(dataset, version):
     stats = []
     k_values = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     for k in k_values:
-        print(f'analyzing fashion with EM (k={k})')
+        print(f'Analyzing {dataset} ({version} version) with EM (k={k})')
         em = EM(n_clusters=k, random_state=SEED)
-        bench = em_fit(em, fashion_x_train, fashion_y_train)
+        bench = em_fit(em, DATA[dataset][version]['x_train'], DATA[dataset][version]['y_train'])
         stats.append(bench)
-        plot_cluster_centers(em)
-        plot_cluster_distances(em)
-        plot_cluster_silhouette(em)
+        plot_cluster_centers(em, dataset, version)
+        plot_cluster_distances(em, dataset, version)
+        plot_cluster_silhouette(em, dataset, version)
 
     print('running elbow method')
     estimator = EM(random_state=SEED)
-    plot_elbow(estimator, k_values, metric='silhouette')
+    plot_elbow(estimator, k_values, dataset, version, metric='silhouette')
 
     stats_df = pd.DataFrame(stats).set_index('k')
-    stats_df.to_csv(f'{STATS_FOLDER}/fashion/base/em_fashion_stats.csv')
-    print('em_kselection_fashion run.')
+    stats_df.to_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_em_stats.csv')
+    print(f'EM kselection on {dataset} ({version} version) run.')
 
 
-def em_evaluation():
-    stats = pd.read_csv(f'{STATS_FOLDER}/fashion/base/em_fashion_stats.csv', index_col='k')
+def em_evaluation(dataset, version):
+    stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_em_stats.csv', index_col='k')
     stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
     stats.plot(marker='o')
-    plt.title(f'Evaluation of EM clusters (confirming k=??)')
-    plt.xlabel('Number of clusters (k=?? was chosen)')
+    plt.title(f'Evaluation of EM clusters')
+    plt.xlabel('Number of clusters')
     plt.ylabel('Score Values')
     plt.legend()
-    plt.savefig(f'{PLOTS_FOLDER}/fashion/base/fashion_EM_evaluation.png')
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_EM_evaluation.png')
     plt.clf()
+
 
 # MAIN
 
 if __name__ == '__main__':
-    load_data()
-    #kmeans_kselection()
-    #kmeans_evaluation()
-    em_kselection()
-    em_evaluation()
+
+    dataset_to_run = 'fashion'
+    version_to_run = 'base'
+
+    load_data(dataset_to_run, version_to_run)
+    kmeans_kselection(dataset_to_run, version_to_run)
+    kmeans_evaluation(dataset_to_run, version_to_run)
+    #em_kselection()
+    #em_evaluation()
     print('exp run.')
