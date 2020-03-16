@@ -71,7 +71,7 @@ def plot_cluster_centers_wine(estimator, dataset, version):
     df = pd.DataFrame(estimator.cluster_centers_, columns=DATA[dataset][version]['x_train'].columns)
     ax = sns.heatmap(df, annot=True, cmap='Blues')
     ax.figure.subplots_adjust(bottom=0.3)
-    ax.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    ax.figure.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
     plt.clf()
 
 
@@ -226,15 +226,15 @@ def em_evaluation(dataset, version):
 
 if __name__ == '__main__':
 
-    dataset_to_run = 'fashion'
+    dataset_to_run = 'wine'
     version_to_run = 'base'
 
     load_data(dataset_to_run, version_to_run)
 
-    # kmeans_kselection(dataset_to_run, version_to_run)
-    # kmeans_evaluation(dataset_to_run, version_to_run)
+    kmeans_kselection(dataset_to_run, version_to_run)
+    kmeans_evaluation(dataset_to_run, version_to_run)
 
-    em_kselection(dataset_to_run, version_to_run)
-    em_evaluation(dataset_to_run, version_to_run)
+    # em_kselection(dataset_to_run, version_to_run)
+    # em_evaluation(dataset_to_run, version_to_run)
 
     print('Clustering run.')
