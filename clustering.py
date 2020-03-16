@@ -231,10 +231,10 @@ if __name__ == '__main__':
 
     load_data(dataset_to_run, version_to_run)
 
-    kmeans_kselection(dataset_to_run, version_to_run)
-    kmeans_evaluation(dataset_to_run, version_to_run)
+    # kmeans_kselection(dataset_to_run, version_to_run)
+    # kmeans_evaluation(dataset_to_run, version_to_run)
 
-    # em_kselection(dataset_to_run, version_to_run)
-    # em_evaluation(dataset_to_run, version_to_run)
+    em_kselection(dataset_to_run, version_to_run)
+    em_evaluation(dataset_to_run, version_to_run)
 
     print('Clustering run.')
