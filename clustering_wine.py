@@ -69,7 +69,7 @@ def plot_cluster_centers(estimator):
 
 def bench_k_means(estimator, data, labels):
     t0 = time()
-    estimator.fit(data)
+    estimator.fit(data, )
     return {
         'k': estimator.n_clusters,
         'eta': (time() - t0),
