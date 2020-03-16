@@ -13,10 +13,17 @@ DATA_FOLDER = 'data'
 STATS_FOLDER = 'stats'
 PLOTS_FOLDER = 'plots'
 
+DATA = {
+    'fashion': {
+        'base': {}
+    },
+    'wine': {
+        'base': {}
+    }
+}
+
 
 # DATA LOADING
-DATA = {}
-
 
 def load_data(dataset, version):
     if dataset == 'fashion':
@@ -223,8 +230,11 @@ if __name__ == '__main__':
     version_to_run = 'base'
 
     load_data(dataset_to_run, version_to_run)
-    kmeans_kselection(dataset_to_run, version_to_run)
-    kmeans_evaluation(dataset_to_run, version_to_run)
-    #em_kselection()
-    #em_evaluation()
-    print('exp run.')
+
+    # kmeans_kselection(dataset_to_run, version_to_run)
+    # kmeans_evaluation(dataset_to_run, version_to_run)
+
+    em_kselection(dataset_to_run, version_to_run)
+    em_evaluation(dataset_to_run, version_to_run)
+
+    print('Clustering run.')
