@@ -5,6 +5,7 @@ from sklearn import metrics
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from yellowbrick.cluster import KElbowVisualizer, InterclusterDistance, SilhouetteVisualizer
+import seaborn as sns
 
 SEED = 42
 DATA_FOLDER = 'data'
@@ -56,6 +57,14 @@ def plot_elbow_silhouette(k_values):
     plt.clf()
 
 
+def plot_cluster_centers(estimator):
+    df = pd.DataFrame(estimator.cluster_centers_, columns=wine_x_train.columns)
+    ax = sns.heatmap(df, annot=True, cmap='Blues')
+    ax.figure.subplots_adjust(bottom=0.3)
+    ax.savefig(f'{KMEANS_PLOTS_FOLDER}/wine_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    plt.clf()
+
+
 # KMEANS
 
 def bench_k_means(estimator, data, labels):
@@ -83,6 +92,7 @@ def kmeans_kselection():
         kmeans = KMeans(n_clusters=k, random_state=SEED)
         bench = bench_k_means(kmeans, wine_x_train, wine_y_train)
         stats.append(bench)
+        plot_cluster_centers(kmeans)
         plot_cluster_distances(kmeans)
         plot_cluster_silhouette(kmeans)
 
