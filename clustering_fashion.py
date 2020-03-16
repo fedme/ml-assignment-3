@@ -11,7 +11,7 @@ DATA_FOLDER = 'data'
 STATS_FOLDER = 'stats'
 PLOTS_FOLDER = 'plots'
 KMEANS_PLOTS_FOLDER = f'{PLOTS_FOLDER}/kmeans/fashion'
-census_x_train, census_y_train, census_x_test, census_y_test = None, None, None, None
+wine_x_train, wine_y_train, wine_x_test, wine_y_test = None, None, None, None
 fashion_x_train, fashion_y_train, fashion_x_test, fashion_y_test = None, None, None, None
 
 
