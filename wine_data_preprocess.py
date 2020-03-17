@@ -1,19 +1,14 @@
-from time import time
-
 import pandas as pd
-from sklearn import metrics
-from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import train_test_split, cross_val_score, RandomizedSearchCV
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import MinMaxScaler
-from yellowbrick.cluster import KElbowVisualizer, InterclusterDistance, SilhouetteVisualizer
 
 SEED = 42
 DATA_FOLDER = 'data'
 STATS_FOLDER = 'stats'
-PLOTS_FOLDER = 'plots/wine_base'
+PLOTS_FOLDER = 'plots'
 wine_x_train, wine_y_train, wine_x_test, wine_y_test = None, None, None, None
 
 
@@ -115,4 +110,4 @@ if __name__ == '__main__':
     # preprocess_data()
     load_data()
     # find_best_mlp()
-    mlp()
+    # mlp()
