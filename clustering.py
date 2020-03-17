@@ -10,8 +10,8 @@ import seaborn as sns
 
 SEED = 42
 DATA_FOLDER = 'data'
-STATS_FOLDER = 'stats'
-PLOTS_FOLDER = 'plots'
+STATS_FOLDER = 'stats/clustering'
+PLOTS_FOLDER = 'plots/clustering'
 
 DATA = {
     'fashion': {
