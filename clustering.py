@@ -226,14 +226,19 @@ def em_evaluation(dataset, version):
 
 if __name__ == '__main__':
 
+    dataset_to_run = 'fashion'
+    version_to_run = 'base'
+    load_data(dataset_to_run, version_to_run)
+    kmeans_kselection(dataset_to_run, version_to_run)
+    kmeans_evaluation(dataset_to_run, version_to_run)
+    em_kselection(dataset_to_run, version_to_run)
+    em_evaluation(dataset_to_run, version_to_run)
+
     dataset_to_run = 'wine'
     version_to_run = 'base'
-
     load_data(dataset_to_run, version_to_run)
-
-    # kmeans_kselection(dataset_to_run, version_to_run)
-    # kmeans_evaluation(dataset_to_run, version_to_run)
-
+    kmeans_kselection(dataset_to_run, version_to_run)
+    kmeans_evaluation(dataset_to_run, version_to_run)
     em_kselection(dataset_to_run, version_to_run)
     em_evaluation(dataset_to_run, version_to_run)
 

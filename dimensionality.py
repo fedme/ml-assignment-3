@@ -252,10 +252,17 @@ def run_svd(dataset):
 # MAIN
 
 if __name__ == '__main__':
+    dataset_to_run = 'fashion'
+    data.load_data(dataset_to_run, 'base')
+    run_pca(dataset_to_run)
+    run_ica(dataset_to_run)
+    run_rp(dataset_to_run)
+    run_svd(dataset_to_run)
+
     dataset_to_run = 'wine'
     data.load_data(dataset_to_run, 'base')
-    # run_pca(dataset_to_run)
-    # run_ica(dataset_to_run)
-    # run_rp(dataset_to_run)
+    run_pca(dataset_to_run)
+    run_ica(dataset_to_run)
+    run_rp(dataset_to_run)
     run_svd(dataset_to_run)
     print('Dimensionality run.')
