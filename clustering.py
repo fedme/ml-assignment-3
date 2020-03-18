@@ -18,9 +18,9 @@ PLOTS_FOLDER = 'plots/clustering'
 # COMMON
 
 def plot_cluster_centers(estimator, dataset, version):
-    if dataset == 'fashion':
+    if dataset == 'fashion' and version == 'base':
         plot_cluster_centers_fashion(estimator, dataset, version)
-    if dataset == 'wine':
+    if dataset == 'wine' and version == 'base':
         plot_cluster_centers_wine(estimator, dataset, version)
 
 
@@ -30,7 +30,7 @@ def plot_cluster_centers_fashion(estimator, dataset, version):
     for axi, center in zip(ax.flat, centers):
         axi.set(xticks=[], yticks=[])
         axi.imshow(center, interpolation='nearest', cmap='binary')
-    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
     plt.clf()
 
 
@@ -38,28 +38,28 @@ def plot_cluster_centers_wine(estimator, dataset, version):
     df = pd.DataFrame(estimator.cluster_centers_, columns=data.DATA[dataset][version]['x_train'].columns)
     ax = sns.heatmap(df, annot=True, cmap='Blues')
     ax.figure.subplots_adjust(bottom=0.3)
-    ax.figure.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
+    ax.figure.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_cluster_distances(estimator, dataset, version):
     visualizer = InterclusterDistance(estimator)
     visualizer.fit(data.DATA[dataset][version]['x_train'])
-    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
+    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_cluster_silhouette(estimator, dataset, version):
     visualizer = SilhouetteVisualizer(estimator, colors='yellowbrick')
     visualizer.fit(data.DATA[dataset][version]['x_train'])
-    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
+    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_elbow(estimator, k_values, dataset, version, metric='distortion'):
     visualizer = KElbowVisualizer(estimator, k=k_values, metric=metric)
     visualizer.fit(data.DATA[dataset][version]['x_train'])
-    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_elbow_{metric}.png')
+    visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_{estimator.__class__.__name__}_elbow_{metric}.png')
     plt.clf()
 
 
@@ -99,19 +99,19 @@ def kmeans_kselection(dataset, version):
     plot_elbow(estimator, k_values, dataset, version, metric='distortion')
 
     stats_df = pd.DataFrame(stats).set_index('k')
-    stats_df.to_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_kmeans_stats.csv')
+    stats_df.to_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_{version}_kmeans_stats.csv')
     print(f'KMeans kselection on {dataset} ({version} version) run.')
 
 
 def kmeans_evaluation(dataset, version):
-    stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_kmeans_stats.csv', index_col='k')
+    stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_{version}_kmeans_stats.csv', index_col='k')
     stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
     stats.plot(marker='o')
     plt.title(f'Evaluation of KMeans clusters')
     plt.xlabel('Number of clusters')
     plt.ylabel('Score Values')
     plt.legend()
-    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_KMeans_evaluation.png')
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_KMeans_evaluation.png')
     plt.clf()
 
 
@@ -173,19 +173,19 @@ def em_kselection(dataset, version):
     plot_elbow(estimator, k_values, dataset, version, metric='silhouette')
 
     stats_df = pd.DataFrame(stats).set_index('k')
-    stats_df.to_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_em_stats.csv')
+    stats_df.to_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_{version}_em_stats.csv')
     print(f'EM kselection on {dataset} ({version} version) run.')
 
 
 def em_evaluation(dataset, version):
-    stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_em_stats.csv', index_col='k')
+    stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_{version}_em_stats.csv', index_col='k')
     stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
     stats.plot(marker='o')
     plt.title(f'Evaluation of EM clusters')
     plt.xlabel('Number of clusters')
     plt.ylabel('Score Values')
     plt.legend()
-    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_EM_evaluation.png')
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{version}_EM_evaluation.png')
     plt.clf()
 
 
