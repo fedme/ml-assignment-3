@@ -1,6 +1,5 @@
 import numpy as np
-from sklearn.decomposition import PCA, FastICA
-from sklearn.metrics import pairwise_distances
+from sklearn.decomposition import PCA, FastICA, TruncatedSVD
 from sklearn.random_projection import SparseRandomProjection
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -207,12 +206,56 @@ def run_rp(dataset):
     plot_rp_reconstruction_error(dataset, stats_df)
 
 
+# SVD
+
+def plot_svd_explained_variance(dataset, stats_df):
+    stats_df.plot()
+    plt.title(f'Evaluation of SVD components on {dataset} dataset')
+    plt.xlabel('Number of components')
+    plt.ylabel('Explained variance ratio')
+    plt.legend()
+    plt.grid()
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{dataset}_SVD_explained_variance.png')
+    plt.clf()
+
+
+def run_svd(dataset):
+    x_train = data.DATA[dataset]['base']['x_train']
+
+    k_values = []
+
+    if dataset == 'fashion':
+        k_values = [2, 5, 10, 20, 50, 100, 150]
+    if dataset == 'wine':
+        k_values = range(2, 11)
+
+    stats = []
+
+    for k in k_values:
+        print(f'Analyzing {dataset} with SVD (k={k})')
+        svd = TruncatedSVD(n_components=k, random_state=SEED)
+        svd.fit(x_train)
+
+        stats.append({
+            'k': k,
+            'total_explained_variance_ratio': svd.explained_variance_ratio_.sum(),
+            'k_component_explained_variance_ratio': svd.explained_variance_ratio_[-1]
+        })
+
+        if k == 5:
+            plot_main_components(svd, dataset)
+
+    stats_df = pd.DataFrame(stats).set_index('k')
+    plot_svd_explained_variance(dataset, stats_df)
+
+
 # MAIN
 
 if __name__ == '__main__':
-    dataset_to_run = 'fashion'
+    dataset_to_run = 'wine'
     data.load_data(dataset_to_run, 'base')
     # run_pca(dataset_to_run)
     # run_ica(dataset_to_run)
-    run_rp(dataset_to_run)
+    # run_rp(dataset_to_run)
+    run_svd(dataset_to_run)
     print('Dimensionality run.')
