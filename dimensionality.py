@@ -1,9 +1,13 @@
 import numpy as np
 from sklearn.decomposition import PCA, FastICA
+from sklearn.metrics import pairwise_distances
+from sklearn.random_projection import SparseRandomProjection
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import data
+import scipy.sparse
+from scipy.linalg import pinv
 
 SEED = 42
 STATS_FOLDER = 'stats/dimensionality'
@@ -131,16 +135,84 @@ def run_ica(dataset):
     plot_ica_mean_kurtosis(dataset, stats_df)
 
 
+# RP
+
+def plot_rp_reconstructed_data_fashion(rp, original_data, k):
+    reconstructed_data = reconstruct_data(rp, original_data)
+
+    fig, ax = plt.subplots(1, 5)
+    centers = reconstructed_data.head(5).to_numpy().reshape(5, 28, 28)
+    for axi, center in zip(ax.flat, centers):
+        axi.set(xticks=[], yticks=[])
+        axi.imshow(center, interpolation='nearest', cmap='binary')
+    plt.savefig(f'{PLOTS_FOLDER}/fashion/fashion_RP_reconstructed_data_k{k}.png')
+    plt.clf()
+
+
+def plot_rp_reconstruction_error(dataset, stats_df):
+    stats_df.plot()
+    plt.title(f'Evaluation of RP components on {dataset} dataset')
+    plt.xlabel('Number of components')
+    plt.ylabel('Reconstruction error')
+    plt.legend()
+    plt.grid()
+    plt.savefig(f'{PLOTS_FOLDER}/{dataset}/{dataset}_RP_reconstruction_error.png')
+    plt.clf()
+
+
+def reconstruct_data(rp, original_data):
+    components = rp.components_
+    if scipy.sparse.issparse(components):
+        components = components.todense()
+    return np.matmul(np.matmul(pinv(components), components), original_data.T).T
+
+
+def compute_rp_reconstruction_error(rp, original_data):
+    reconstructed_data = reconstruct_data(rp, original_data)
+    squared_errors = np.square(original_data - reconstructed_data)
+    return np.nanmean(squared_errors)
+
+
+def run_rp(dataset):
+    x_train = data.DATA[dataset]['base']['x_train']
+
+    k_values = []
+
+    if dataset == 'fashion':
+        k_values = [2, 5, 10, 20, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 784]
+    if dataset == 'wine':
+        k_values = range(2, 11)
+
+    stats = []
+
+    for k in k_values:
+        print(f'Analyzing {dataset} with RP (k={k})')
+
+        reconstruction_error = float('inf')
+        for seed in range(10):
+            rp = SparseRandomProjection(n_components=k, random_state=seed)
+            rp.fit(x_train)
+            new_reconstruction_error = compute_rp_reconstruction_error(rp, x_train)
+            reconstruction_error = new_reconstruction_error if new_reconstruction_error < reconstruction_error else reconstruction_error
+
+            if dataset == 'fashion' and k in (300, 500, 600, 650, 700) and seed == 0:
+                plot_rp_reconstructed_data_fashion(rp, x_train, k)
+
+        stats.append({
+            'k': k,
+            'reconstruction_error': reconstruction_error
+        })
+
+    stats_df = pd.DataFrame(stats).set_index('k')
+    plot_rp_reconstruction_error(dataset, stats_df)
+
+
 # MAIN
 
 if __name__ == '__main__':
-
-    dataset_to_run = 'wine'
-
+    dataset_to_run = 'fashion'
     data.load_data(dataset_to_run, 'base')
-
     # run_pca(dataset_to_run)
-
-    run_ica(dataset_to_run)
-
+    # run_ica(dataset_to_run)
+    run_rp(dataset_to_run)
     print('Dimensionality run.')
