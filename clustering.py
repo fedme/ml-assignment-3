@@ -8,44 +8,11 @@ from sklearn.mixture import GaussianMixture
 from yellowbrick.cluster import KElbowVisualizer, InterclusterDistance, SilhouetteVisualizer
 import seaborn as sns
 
+import data
+
 SEED = 42
-DATA_FOLDER = 'data'
 STATS_FOLDER = 'stats/clustering'
 PLOTS_FOLDER = 'plots/clustering'
-
-DATA = {
-    'fashion': {
-        'base': {}
-    },
-    'wine': {
-        'base': {}
-    }
-}
-
-
-# DATA LOADING
-
-def load_data(dataset, version):
-    if dataset == 'fashion':
-        load_data_fashion(version)
-    if dataset == 'wine':
-        load_data_wine(version)
-
-
-def load_data_fashion(version):
-    if version == 'base':
-        DATA['fashion']['base']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_train.csv')
-        DATA['fashion']['base']['y_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_train.csv').iloc[:, 0].to_numpy()
-        DATA['fashion']['base']['x_test'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_test.csv')
-        DATA['fashion']['base']['y_test'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_test.csv').iloc[:, 0].to_numpy()
-
-
-def load_data_wine(version):
-    if version == 'base':
-        DATA['wine']['base']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_x_train.csv')
-        DATA['wine']['base']['y_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_train.csv').iloc[:, 0].to_numpy()
-        DATA['wine']['base']['x_test'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_x_test.csv')
-        DATA['wine']['base']['y_test'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_test.csv').iloc[:, 0].to_numpy()
 
 
 # COMMON
@@ -68,7 +35,7 @@ def plot_cluster_centers_fashion(estimator, dataset, version):
 
 
 def plot_cluster_centers_wine(estimator, dataset, version):
-    df = pd.DataFrame(estimator.cluster_centers_, columns=DATA[dataset][version]['x_train'].columns)
+    df = pd.DataFrame(estimator.cluster_centers_, columns=data.DATA[dataset][version]['x_train'].columns)
     ax = sns.heatmap(df, annot=True, cmap='Blues')
     ax.figure.subplots_adjust(bottom=0.3)
     ax.figure.savefig(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_centers_k{estimator.n_clusters}.png')
@@ -77,21 +44,21 @@ def plot_cluster_centers_wine(estimator, dataset, version):
 
 def plot_cluster_distances(estimator, dataset, version):
     visualizer = InterclusterDistance(estimator)
-    visualizer.fit(DATA[dataset][version]['x_train'])
+    visualizer.fit(data.DATA[dataset][version]['x_train'])
     visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_distances_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_cluster_silhouette(estimator, dataset, version):
     visualizer = SilhouetteVisualizer(estimator, colors='yellowbrick')
-    visualizer.fit(DATA[dataset][version]['x_train'])
+    visualizer.fit(data.DATA[dataset][version]['x_train'])
     visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_cluster_silhouettes_k{estimator.n_clusters}.png')
     plt.clf()
 
 
 def plot_elbow(estimator, k_values, dataset, version, metric='distortion'):
     visualizer = KElbowVisualizer(estimator, k=k_values, metric=metric)
-    visualizer.fit(DATA[dataset][version]['x_train'])
+    visualizer.fit(data.DATA[dataset][version]['x_train'])
     visualizer.show(f'{PLOTS_FOLDER}/{dataset}/{version}/{dataset}_{estimator.__class__.__name__}_elbow_{metric}.png')
     plt.clf()
 
@@ -121,7 +88,7 @@ def kmeans_kselection(dataset, version):
     for k in k_values:
         print(f'Analyzing {dataset} ({version} version) with KMeans (k={k})')
         kmeans = KMeans(n_clusters=k, random_state=SEED)
-        bench = kmeans_fit(kmeans, DATA[dataset][version]['x_train'], DATA[dataset][version]['y_train'])
+        bench = kmeans_fit(kmeans, data.DATA[dataset][version]['x_train'], data.DATA[dataset][version]['y_train'])
         stats.append(bench)
         plot_cluster_centers(kmeans, dataset, version)
         plot_cluster_distances(kmeans, dataset, version)
@@ -195,7 +162,7 @@ def em_kselection(dataset, version):
     for k in k_values:
         print(f'Analyzing {dataset} ({version} version) with EM (k={k})')
         em = EM(n_clusters=k, random_state=SEED)
-        bench = em_fit(em, DATA[dataset][version]['x_train'], DATA[dataset][version]['y_train'])
+        bench = em_fit(em, data.DATA[dataset][version]['x_train'], data.DATA[dataset][version]['y_train'])
         stats.append(bench)
         plot_cluster_centers(em, dataset, version)
         plot_cluster_distances(em, dataset, version)
@@ -228,7 +195,7 @@ if __name__ == '__main__':
 
     dataset_to_run = 'fashion'
     version_to_run = 'base'
-    load_data(dataset_to_run, version_to_run)
+    data.load_data(dataset_to_run, version_to_run)
     kmeans_kselection(dataset_to_run, version_to_run)
     kmeans_evaluation(dataset_to_run, version_to_run)
     em_kselection(dataset_to_run, version_to_run)
@@ -236,7 +203,7 @@ if __name__ == '__main__':
 
     dataset_to_run = 'wine'
     version_to_run = 'base'
-    load_data(dataset_to_run, version_to_run)
+    data.load_data(dataset_to_run, version_to_run)
     kmeans_kselection(dataset_to_run, version_to_run)
     kmeans_evaluation(dataset_to_run, version_to_run)
     em_kselection(dataset_to_run, version_to_run)

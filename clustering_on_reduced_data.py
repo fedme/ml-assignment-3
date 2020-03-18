@@ -8,7 +8,7 @@ def run_clustering():
 
     for dataset in datasets:
         for version in versions:
-            print(f'Running clustering on {datasets} ({version} version)')
+            print(f'Running clustering on {dataset} ({version} version)')
             data.load_data(dataset, version)
             clustering.kmeans_kselection(dataset, version)
             clustering.kmeans_evaluation(dataset, version)

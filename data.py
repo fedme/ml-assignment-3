@@ -30,6 +30,9 @@ def load_data(dataset, version):
 
 
 def load_data_fashion(version):
+
+    y_train = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_train.csv').iloc[:, 0].to_numpy()
+
     if version == 'base':
         DATA['fashion']['base']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_x_train.csv')
         DATA['fashion']['base']['y_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_train.csv').iloc[:, 0].to_numpy()
@@ -37,16 +40,25 @@ def load_data_fashion(version):
         DATA['fashion']['base']['y_test'] = pd.read_csv(f'{DATA_FOLDER}/fashion_mnist_y_test.csv').iloc[:, 0].to_numpy()
 
     if version == 'ica':
-        DATA['fashion']['ica']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_ica_x_train.csv')
+        DATA['fashion']['ica']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/fashion_ica_x_train.csv')
+        DATA['fashion']['ica']['y_train'] = y_train
+
     if version == 'pca':
-        DATA['fashion']['pca']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_pca_x_train.csv')
+        DATA['fashion']['pca']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/fashion_pca_x_train.csv')
+        DATA['fashion']['pca']['y_train'] = y_train
+
     if version == 'rp':
-        DATA['fashion']['rp']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_rp_x_train.csv')
+        DATA['fashion']['rp']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/fashion_rp_x_train.csv')
+        DATA['fashion']['rp']['y_train'] = y_train
+
     if version == 'svd':
-        DATA['fashion']['svd']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/fashion_svd_x_train.csv')
+        DATA['fashion']['svd']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/fashion_svd_x_train.csv')
+        DATA['fashion']['svd']['y_train'] = y_train
 
 
 def load_data_wine(version):
+    y_train = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_train.csv').iloc[:, 0].to_numpy()
+
     if version == 'base':
         DATA['wine']['base']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_x_train.csv')
         DATA['wine']['base']['y_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_train.csv').iloc[:, 0].to_numpy()
@@ -54,13 +66,20 @@ def load_data_wine(version):
         DATA['wine']['base']['y_test'] = pd.read_csv(f'{DATA_FOLDER}/wine_white_y_test.csv').iloc[:, 0].to_numpy()
 
     if version == 'ica':
-        DATA['wine']['ica']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_ica_x_train.csv')
+        DATA['wine']['ica']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/wine_ica_x_train.csv')
+        DATA['wine']['ica']['y_train'] = y_train
+
     if version == 'pca':
-        DATA['wine']['pca']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_pca_x_train.csv')
+        DATA['wine']['pca']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/wine_pca_x_train.csv')
+        DATA['wine']['pca']['y_train'] = y_train
+
     if version == 'rp':
-        DATA['wine']['rp']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_rp_x_train.csv')
+        DATA['wine']['rp']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/wine_rp_x_train.csv')
+        DATA['wine']['rp']['y_train'] = y_train
+
     if version == 'svd':
-        DATA['wine']['svd']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/wine_svd_x_train.csv')
+        DATA['wine']['svd']['x_train'] = pd.read_csv(f'{DATA_FOLDER}/reduced/wine_svd_x_train.csv')
+        DATA['wine']['svd']['y_train'] = y_train
 
 
 if __name__ == '__main__':
