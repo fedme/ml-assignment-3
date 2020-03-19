@@ -107,7 +107,7 @@ def kmeans_evaluation(dataset, version):
     stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_{version}_kmeans_stats.csv', index_col='k')
     stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
     stats.plot(marker='o')
-    plt.title(f'Evaluation of KMeans clusters')
+    plt.title(f'Evaluation of KMeans clusters on {dataset} ({version})')
     plt.xlabel('Number of clusters')
     plt.ylabel('Score Values')
     plt.legend()
@@ -181,7 +181,7 @@ def em_evaluation(dataset, version):
     stats = pd.read_csv(f'{STATS_FOLDER}/{dataset}/{version}/{dataset}_{version}_em_stats.csv', index_col='k')
     stats = stats[['homo', 'compl', 'vmeas', 'ari', 'ami']]
     stats.plot(marker='o')
-    plt.title(f'Evaluation of EM clusters')
+    plt.title(f'Evaluation of EM clusters on {dataset} ({version})')
     plt.xlabel('Number of clusters')
     plt.ylabel('Score Values')
     plt.legend()
