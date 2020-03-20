@@ -18,7 +18,7 @@ def find_best_mlp(version):
     y_train = data.DATA['fashion'][version]['y_train']
 
     params = {
-        "hidden_layer_sizes": [(30, 30), (50, 50), (10, 10, 10), (30, 30, 30)],
+        "hidden_layer_sizes": [(10, 10), (20, 20), (30, 30), (50, 50), (10, 10, 10), (30, 30, 30)],
         "activation": ["logistic", "tanh", "relu"],
         "solver": ["sgd", "adam"],
         "alpha": [0.0001, 0.001, 0.01],
@@ -28,7 +28,10 @@ def find_best_mlp(version):
     mlp_gcv = RandomizedSearchCV(ac_mlp, params, scoring='accuracy', n_iter=100, random_state=SEED, n_jobs=-1, verbose=5)
     mlp_gcv.fit(x_train, y_train)
 
-    # PCA: solver: adam, max_iter: 600, hidden_layer_size: (30, 30), alpha: 0.0001, activation: logistic => accuracy 0.8625
+    # PCA: solver=adam, max_iter=600, hidden_layer_size=(30, 30), alpha=0.0001, activation=logistic => score 0.8625
+    # ICA: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=relu => score=0.831
+    # RP:  solver=sgd, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.0001, activation=logistic => score=0.885
+    # SVD: solver=adam, max_iter=600, hidden_layer_sizes=(30, 30), alpha=0.001, activation=logistic => score=0.890
     best_params = mlp_gcv.best_params_
 
     mlp_tuned = mlp_gcv.best_estimator_
@@ -61,7 +64,7 @@ def find_best_mlp(version):
 
 
 if __name__ == '__main__':
-    version = 'pca'
+    version = 'svd'
     data.load_data('fashion', version)
     find_best_mlp(version)
     print
