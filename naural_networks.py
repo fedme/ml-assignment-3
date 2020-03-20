@@ -12,8 +12,7 @@ PLOTS_FOLDER = 'plots'
 
 
 def find_best_mlp(version):
-    ac_mlp = MLPClassifier(random_state=SEED)
-
+    data.load_data('fashion', version)
     x_train = data.DATA['fashion'][version]['x_train']
     y_train = data.DATA['fashion'][version]['y_train']
 
@@ -25,13 +24,16 @@ def find_best_mlp(version):
         "max_iter": [600]
     }
 
-    mlp_gcv = RandomizedSearchCV(ac_mlp, params, scoring='accuracy', n_iter=100, random_state=SEED, n_jobs=-1, verbose=5)
+    mlp = MLPClassifier(random_state=SEED)
+    mlp_gcv = RandomizedSearchCV(mlp, params, scoring='accuracy', n_iter=100, random_state=SEED, n_jobs=-1, verbose=5)
     mlp_gcv.fit(x_train, y_train)
 
     # PCA: solver=adam, max_iter=600, hidden_layer_size=(30, 30), alpha=0.0001, activation=logistic => score 0.8625
     # ICA: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=relu => score=0.831
     # RP:  solver=sgd, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.0001, activation=logistic => score=0.885
     # SVD: solver=adam, max_iter=600, hidden_layer_sizes=(30, 30), alpha=0.001, activation=logistic => score=0.890
+    # AKM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=tanh => score = 0.888
+    # AEM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.01, activation=logistic => score=0.886
     best_params = mlp_gcv.best_params_
 
     mlp_tuned = mlp_gcv.best_estimator_
@@ -40,31 +42,100 @@ def find_best_mlp(version):
     print()
 
 
-# def mlp():
-#     classifier = MLPClassifier(
-#         hidden_layer_sizes=(50, 50, 50),
-#         solver='adam',
-#         alpha=0.001,
-#         activation='relu',
-#         random_state=SEED,
-#         max_iter=1000)
-#
-#     mean_accuracy = cross_val_score(classifier, wine_x_train, wine_y_train, cv=5, scoring='accuracy', n_jobs=-1).mean()
-#     mean_f1 = cross_val_score(classifier, wine_x_train, wine_y_train, cv=5, scoring='f1', n_jobs=-1).mean()
-#
-#     classifier.fit(wine_x_train, wine_y_train)
-#     disp = plot_confusion_matrix(classifier, wine_x_train, wine_y_train, display_labels=['bad wine', 'good wine'],
-#                                  cmap=plt.cm.get_cmap('Blues'),
-#                                  normalize='true')
-#     disp.ax_.set_title(f'MLP Classifier on Wine - Normalized confusion matrix')
-#     plt.savefig(f'{PLOTS_FOLDER}/wine_base_mlp_confusion_matrix.png')
-#     plt.clf()
-#
-#     print()
+def mlp():
+    # AKM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=tanh, score = 0.888
+    data_version = 'aug_kmeans'
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(50, 50),
+        alpha=0.001,
+        activation='tanh',
+        random_state=SEED)
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    # AEM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.01, activation=logistic, score=0.886
+    data_version = 'aug_em'
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(50, 50),
+        alpha=0.01,
+        activation='logistic',
+        random_state=SEED)
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    # PCA: solver=adam, max_iter=600, hidden_layer_size=(30, 30), alpha=0.0001, activation=logistic => score 0.8625
+    data_version = 'pca'
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(30, 30),
+        alpha=0.0001,
+        activation='logistic',
+        random_state=SEED)
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    # ICA: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=relu => score=0.831
+    data_version = 'ica'
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(50, 50),
+        alpha=0.001,
+        activation='relu',
+        random_state=SEED)
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    # RP:  solver=sgd, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.0001, activation=logistic => score=0.885
+    data_version = 'rp'
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='sgd',
+        max_iter=600,
+        hidden_layer_sizes=(50, 50),
+        alpha=0.0001,
+        activation='logistic',
+        random_state=SEED)
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    # SVD: solver=adam, max_iter=600, hidden_layer_sizes=(30, 30), alpha=0.001, activation=logistic => score=0.890
+    data_version = 'svd'
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(30, 30),
+        alpha=0.001,
+        activation='logistic',
+        random_state=SEED)
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    print()
 
 
 if __name__ == '__main__':
-    version = 'svd'
-    data.load_data('fashion', version)
-    find_best_mlp(version)
+    # find_best_mlp('pca')
+    # find_best_mlp('ica')
+    # find_best_mlp('rp')
+    # find_best_mlp('svd')
+    # find_best_mlp('aug_kmeans')
+    # find_best_mlp('aug_em')
+    mlp()
     print
