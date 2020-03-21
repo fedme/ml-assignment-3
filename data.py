@@ -5,8 +5,8 @@ DATA_FOLDER = 'data'
 DATA = {
     'fashion': {
         'base': {},
-        'ica': {},
         'pca': {},
+        'ica': {},
         'rp': {},
         'svd': {},
         'aug_kmeans': {},
@@ -14,8 +14,8 @@ DATA = {
     },
     'wine': {
         'base': {},
-        'ica': {},
         'pca': {},
+        'ica': {},
         'rp': {},
         'svd': {}
     }

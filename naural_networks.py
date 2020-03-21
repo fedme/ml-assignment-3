@@ -1,9 +1,5 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import train_test_split, cross_val_score, RandomizedSearchCV
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import MinMaxScaler
 import data
 
 SEED = 42
@@ -138,4 +134,4 @@ if __name__ == '__main__':
     # find_best_mlp('aug_kmeans')
     # find_best_mlp('aug_em')
     mlp()
-    print
+    print()
