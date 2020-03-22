@@ -1,4 +1,4 @@
-name: ml-assignment-3
+name: fmeini3-ml-assignment-3
 channels:
   - conda-forge
   - defaults

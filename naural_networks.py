@@ -309,7 +309,7 @@ if __name__ == '__main__':
     # find_best_mlp('aug_kmeans')
     # find_best_mlp('aug_em')
 
-    # measure_mlp_accuracy()
+    measure_mlp_accuracy()
     plot_accuracy()
     plot_times()
 
