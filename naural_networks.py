@@ -3,6 +3,7 @@ from sklearn.model_selection import cross_val_score, RandomizedSearchCV
 from sklearn.neural_network import MLPClassifier
 import pandas as pd
 from timeit import default_timer as timer
+import matplotlib.pyplot as plt
 import data
 
 SEED = 42
@@ -66,13 +67,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -96,13 +97,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -126,13 +127,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -156,13 +157,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -186,13 +187,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -216,13 +217,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -246,13 +247,13 @@ def measure_mlp_accuracy():
 
     print(f'[{data_version}] Measuring train CV accuracy')
     accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
-    results_accuracy_train[data_version] = [accuracy]
+    results_accuracy_train[data_version] = accuracy
 
     print(f'[{data_version}] Measuring train time')
     start = timer()
     classifier.fit(x_train, y_train)
     train_time = timer() - start
-    results_times[data_version] = [train_time]
+    results_times[data_version] = train_time
 
     print(f'[{data_version}] Measuring test accuracy')
     x_test = data.DATA['fashion'][data_version]['x_test']
@@ -263,13 +264,41 @@ def measure_mlp_accuracy():
     print(results_accuracy_test)
     print(results_times)
 
-    results_accuracy_df = pd.DataFrame.from_dict(results_accuracy_train)
-    results_accuracy_df.to_csv(f'{STATS_FOLDER}/neural_networks/accuracy_train.csv', index=False)
+    results_accuracy_df = pd.DataFrame([results_accuracy_train, results_accuracy_test])
+    results_accuracy_df.to_csv(f'{STATS_FOLDER}/neural_networks/accuracy.csv', index=False)
 
-    results_times_df = pd.DataFrame.from_dict(results_times)
+    results_times_df = pd.DataFrame([results_times])
     results_times_df.to_csv(f'{STATS_FOLDER}/neural_networks/train_times.csv', index=False)
 
     print()
+
+
+def plot_accuracy():
+    df = pd.read_csv(f'{STATS_FOLDER}/neural_networks/accuracy.csv')
+    df = df.T
+    df.columns = ['train CV accuracy', 'test accuracy']
+    df.plot.bar(rot=1)
+    plt.title('Train and test accuracy on different versions of fashion dataset')
+    plt.xlabel('dataset version')
+    plt.ylabel('accuracy score')
+    plt.grid()
+    plt.ylim(bottom=0.6)
+    plt.savefig(f'{PLOTS_FOLDER}/neural_networks/accuracy.png')
+    plt.clf()
+
+
+def plot_times():
+    df = pd.read_csv(f'{STATS_FOLDER}/neural_networks/train_times.csv')
+    df = df.T
+    df.columns = ['training time']
+    df.plot.bar(rot=1)
+    plt.title('Training times on different versions of fashion dataset')
+    plt.xlabel('dataset version')
+    plt.ylabel('training time (seconds)')
+    plt.grid()
+    plt.ylim(bottom=0.6)
+    plt.savefig(f'{PLOTS_FOLDER}/neural_networks/train_times.png')
+    plt.clf()
 
 
 if __name__ == '__main__':
@@ -279,5 +308,9 @@ if __name__ == '__main__':
     # find_best_mlp('svd')
     # find_best_mlp('aug_kmeans')
     # find_best_mlp('aug_em')
-    measure_mlp_accuracy()
+
+    # measure_mlp_accuracy()
+    plot_accuracy()
+    plot_times()
+
     print()
