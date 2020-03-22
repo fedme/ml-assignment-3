@@ -1,5 +1,8 @@
-from sklearn.model_selection import train_test_split, cross_val_score, RandomizedSearchCV
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score, RandomizedSearchCV
 from sklearn.neural_network import MLPClassifier
+import pandas as pd
+from timeit import default_timer as timer
 import data
 
 SEED = 42
@@ -35,40 +38,51 @@ def find_best_mlp(version):
     mlp_tuned = mlp_gcv.best_estimator_
 
     mean_accuracy = cross_val_score(mlp_tuned, x_train, y_train, cv=5, scoring='accuracy', n_jobs=-1).mean()
-    print()
+    print(best_params)
+    print(mean_accuracy)
 
 
-def mlp():
-    # AKM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=tanh, score = 0.888
-    data_version = 'aug_kmeans'
+def measure_mlp_accuracy():
+
+    results_accuracy_train = {}
+    results_accuracy_test = {}
+    results_times = {}
+
+    # BASE
+    data_version = 'base'
+    print(f'[{data_version}] Init analysis')
     data.load_data('fashion', data_version)
     x_train = data.DATA['fashion'][data_version]['x_train']
     y_train = data.DATA['fashion'][data_version]['y_train']
     classifier = MLPClassifier(
-        solver='adam',
+        solver='sgd',
         max_iter=600,
-        hidden_layer_sizes=(50, 50),
-        alpha=0.001,
-        activation='tanh',
-        random_state=SEED)
-    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
-
-    # AEM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.01, activation=logistic, score=0.886
-    data_version = 'aug_em'
-    data.load_data('fashion', data_version)
-    x_train = data.DATA['fashion'][data_version]['x_train']
-    y_train = data.DATA['fashion'][data_version]['y_train']
-    classifier = MLPClassifier(
-        solver='adam',
-        max_iter=600,
-        hidden_layer_sizes=(50, 50),
-        alpha=0.01,
+        learning_rate='adaptive',
+        hidden_layer_sizes=(30, 30),
+        alpha=0.0001,
         activation='logistic',
-        random_state=SEED)
-    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+        random_state=SEED
+    )
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
 
     # PCA: solver=adam, max_iter=600, hidden_layer_size=(30, 30), alpha=0.0001, activation=logistic => score 0.8625
     data_version = 'pca'
+    print(f'[{data_version}] Init analysis')
     data.load_data('fashion', data_version)
     x_train = data.DATA['fashion'][data_version]['x_train']
     y_train = data.DATA['fashion'][data_version]['y_train']
@@ -79,10 +93,26 @@ def mlp():
         alpha=0.0001,
         activation='logistic',
         random_state=SEED)
-    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
 
     # ICA: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=relu => score=0.831
     data_version = 'ica'
+    print(f'[{data_version}] Init analysis')
     data.load_data('fashion', data_version)
     x_train = data.DATA['fashion'][data_version]['x_train']
     y_train = data.DATA['fashion'][data_version]['y_train']
@@ -93,10 +123,26 @@ def mlp():
         alpha=0.001,
         activation='relu',
         random_state=SEED)
-    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
 
     # RP:  solver=sgd, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.0001, activation=logistic => score=0.885
     data_version = 'rp'
+    print(f'[{data_version}] Init analysis')
     data.load_data('fashion', data_version)
     x_train = data.DATA['fashion'][data_version]['x_train']
     y_train = data.DATA['fashion'][data_version]['y_train']
@@ -107,10 +153,26 @@ def mlp():
         alpha=0.0001,
         activation='logistic',
         random_state=SEED)
-    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
 
     # SVD: solver=adam, max_iter=600, hidden_layer_sizes=(30, 30), alpha=0.001, activation=logistic => score=0.890
     data_version = 'svd'
+    print(f'[{data_version}] Init analysis')
     data.load_data('fashion', data_version)
     x_train = data.DATA['fashion'][data_version]['x_train']
     y_train = data.DATA['fashion'][data_version]['y_train']
@@ -121,7 +183,91 @@ def mlp():
         alpha=0.001,
         activation='logistic',
         random_state=SEED)
-    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy').mean()
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
+
+    # AKM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.001, activation=tanh, score = 0.888
+    data_version = 'aug_kmeans'
+    print(f'[{data_version}] Init analysis')
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(50, 50),
+        alpha=0.001,
+        activation='tanh',
+        random_state=SEED)
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
+
+    # AEM: solver=adam, max_iter=600, hidden_layer_sizes=(50, 50), alpha=0.01, activation=logistic, score=0.886
+    data_version = 'aug_em'
+    print(f'[{data_version}] Init analysis')
+    data.load_data('fashion', data_version)
+    x_train = data.DATA['fashion'][data_version]['x_train']
+    y_train = data.DATA['fashion'][data_version]['y_train']
+    classifier = MLPClassifier(
+        solver='adam',
+        max_iter=600,
+        hidden_layer_sizes=(50, 50),
+        alpha=0.01,
+        activation='logistic',
+        random_state=SEED)
+
+    print(f'[{data_version}] Measuring train CV accuracy')
+    accuracy = cross_val_score(classifier, x_train, y_train, cv=3, scoring='accuracy', n_jobs=-1).mean()
+    results_accuracy_train[data_version] = [accuracy]
+
+    print(f'[{data_version}] Measuring train time')
+    start = timer()
+    classifier.fit(x_train, y_train)
+    train_time = timer() - start
+    results_times[data_version] = [train_time]
+
+    print(f'[{data_version}] Measuring test accuracy')
+    x_test = data.DATA['fashion'][data_version]['x_test']
+    y_test = data.DATA['fashion'][data_version]['y_test']
+    results_accuracy_test[data_version] = accuracy_score(y_test, classifier.predict(x_test))
+
+    print(results_accuracy_train)
+    print(results_accuracy_test)
+    print(results_times)
+
+    results_accuracy_df = pd.DataFrame.from_dict(results_accuracy_train)
+    results_accuracy_df.to_csv(f'{STATS_FOLDER}/neural_networks/accuracy_train.csv', index=False)
+
+    results_times_df = pd.DataFrame.from_dict(results_times)
+    results_times_df.to_csv(f'{STATS_FOLDER}/neural_networks/train_times.csv', index=False)
 
     print()
 
@@ -133,5 +279,5 @@ if __name__ == '__main__':
     # find_best_mlp('svd')
     # find_best_mlp('aug_kmeans')
     # find_best_mlp('aug_em')
-    mlp()
+    measure_mlp_accuracy()
     print()
